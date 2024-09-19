@@ -17,7 +17,7 @@ def choose_original_folder():
         global selected_original_folder
         selected_original_folder = folder_original_path
 
-
+#Tomorow is a new day
 # Function to choose the destination folder
 def choose_destination_folder():
     # Open a folder selection dialog
