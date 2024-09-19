@@ -109,3 +109,5 @@ copy_button.pack(pady=10)
 
 # Start the GUI main loop
 root.mainloop()
+
+#for network
