@@ -82,7 +82,7 @@ def copy_folder_manually():
     except Exception as e:
         messagebox.showerror("Error", f"Could not copy folder: {e}")
 
-
+#for network
 # Create the main window
 root = Tk()
 root.title("Folder Copier")
