@@ -1,6 +1,6 @@
 # Import necessary libraries
 import os  # To interact with the operating system
-from tkinter import Tk, Label, Button, Listbox, filedialog, messagebox
+from tkinter import Tk, Label, Button, Listbox, filedialog, messagebox #For small visuals
 
 
 # Function to choose a folder
