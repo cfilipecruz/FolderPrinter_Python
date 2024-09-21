@@ -87,7 +87,7 @@ def choose_destination_folder():
         global selected_destination_folder
         selected_destination_folder = folder_destination_path
 
-
+#network
 # Function to list all files and directories in the selected folder
 def list_files(folder_path, list_number):
     try:
