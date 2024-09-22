@@ -6,15 +6,15 @@ import time
 # Variables
 selected_original_folder = ''
 selected_destination_folder = ''
-log_file_path = 'assets/file_actions.log'
+log_file_path = 'assets/logs/file_actions.log'
 window_width = 1200  # Set your desired width
 window_height = 800  # Set your desired height
 
 
 # Function to log actions
-def log_action(action, file_name, user):
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"{timestamp} - {action}: {file_name} by {user}\n"
+def log_action(action, file_name):
+    timestamp = time.strftime("%Y-%m-%d|%H:%M:%S")
+    log_entry = f"{timestamp} || {action}: {file_name} by {user}\n"
     with open(log_file_path, 'a') as log_file:
         log_file.write(log_entry)
 
@@ -30,40 +30,16 @@ def display_logs():
         log_text.see('end')  # Scroll to the end of the Text widget
 
 
-# Assume a function to get the current user (this is a placeholder)
+# Function to get the current user.
 def get_current_user():
-    return os.getlogin()  # Returns the current user's login name
-
-
-# Function to show keynotes
-def show_keynotes():
-    keynotes = (
-        "Keynotes:\n"
-        "- The Current progress bar is bit irrelevant, "
-        "as it represents the copy process and not the end of the copy, "
-        "for this we can change the copy to a different thread\n"
-    )
-    messagebox.showinfo("Keynotes", keynotes)
-
-
-# Function to show help
-def show_help():
-    help_text = (
-        "Help:\n"
-        "This application allows you to copy files from one folder to another.\n"
-        "Steps to use the application:\n"
-        "1. Click 'Choose Original Folder' to select the folder with files.\n"
-        "2. Click 'Choose Destination Folder' to select where to copy files.\n"
-        "3. Click 'Copy Folder Manually' to start the copying process.\n"
-        "4. Monitor the progress using the progress bar.\n"
-        "If you encounter any issues, please check folder permissions."
-    )
-    messagebox.showinfo("Help", help_text)
+    global user
+    user = os.getlogin()  # Returns the current user's login name
 
 
 # Function to choose original folder
 def choose_original_folder():
     # Open a folder selection dialog
+    get_current_user()
 
     folder_original_path = filedialog.askdirectory()
 
@@ -73,6 +49,15 @@ def choose_original_folder():
         list_files(folder_original_path, 1)
         global selected_original_folder
         selected_original_folder = folder_original_path
+
+
+def is_subdirectory(parent, child):
+    # Get the absolute paths
+    parent = os.path.abspath(parent)
+    child = os.path.abspath(child)
+
+    # Check if child starts with the parent path
+    return os.path.commonpath([parent]) == os.path.commonpath([parent, child])
 
 
 # Function to choose the destination folder
@@ -86,6 +71,7 @@ def choose_destination_folder():
         list_files(folder_destination_path, 2)
         global selected_destination_folder
         selected_destination_folder = folder_destination_path
+
 
 # Function to list all files and directories in the selected folder
 def list_files(folder_path, list_number):
@@ -124,7 +110,7 @@ def copy_file(original, destination):
         with open(destination, 'wb') as f_destination:
             f_destination.write(content)
             list_files(selected_destination_folder, 2)
-            log_action("Copied", original, get_current_user())  # Log the copy action
+            log_action("Copied", original)  # Log the copy action
     except Exception as e:
         messagebox.showerror('Error', f'Could not copy file {original}: {e}')
 
@@ -142,14 +128,14 @@ def delete_missing_files(original_folder, destination_folder):
                     for root, dirs, files in os.walk(item_path, topdown=False):
                         for name in files:
                             os.remove(os.path.join(root, name))
-                            log_action("Deleted", os.path.join(root, name), get_current_user())  # Log the deletion
+                            log_action("Deleted", os.path.join(root, name))  # Log the deletion
                         for name in dirs:
                             os.rmdir(os.path.join(root, name))
                     os.rmdir(item_path)
-                    log_action("Deleted", item_path, get_current_user())  # Log the deletion
+                    log_action("Deleted", item_path)  # Log the deletion
                 else:
                     os.remove(item_path)
-                    log_action("Deleted", item_path, get_current_user())  # Log the deletion
+                    log_action("Deleted", item_path)  # Log the deletion
         list_files(destination_folder, 2)
     except Exception as e:
         messagebox.showerror('Error', f'Could not delete missing files: {e}')
@@ -181,26 +167,30 @@ def copy_folder_recursively(original_folder, destination_folder, progress_bar):
         delete_missing_files(original_folder, destination_folder)
 
     except Exception as e:
+
         messagebox.showerror('Error', f'Could not copy folder: {e}')
 
 
 # Function to handle copying the entire folder
 def copy_folder_manually(auto):
     if selected_original_folder == '':
+        print("\033[31mError - User tried to copy folder without selecting original Folder\033[0m")
         messagebox.showerror('Error', 'Please select an original folder')
     elif selected_destination_folder == '':
+        print("\033[31mError - User tried to copy folder without selecting destination Folder\033[0m")
         messagebox.showerror('Error', 'Please select a destination folder')
     else:
         new_folder = os.path.join(selected_destination_folder, 'CopiedFolder')
         progress_bar = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=300)
         progress_bar.grid(row=6, column=0, columnspan=2, pady=20)
-
         try:
             copy_folder_recursively(selected_original_folder, new_folder, progress_bar)
             progress_bar['value'] = 100  # Complete progress
             if not auto:
+                print("\033[32mSuccess - Folder copied with success\033[0m")
                 messagebox.showinfo('Success', f'Folder copied successfully to {new_folder}')
         except Exception as e:
+            print(f'\033[31mError - Could not copy the folder: {e}\033[0m')
             messagebox.showerror('Error', f'Could not copy folder: {e}')
         finally:
             progress_bar.destroy()  # Remove progress bar after copying
@@ -223,6 +213,32 @@ def toggle_timer():
         update_file_lists()  # Start updating if the timer is enabled
 
 
+# Function to show keynotes
+def show_keynotes():
+    keynotes = (
+        "Keynotes:\n"
+        "- The Current progress bar is bit irrelevant, "
+        "as it represents the copy process and not the end of the copy, "
+        "for this we can change the copy to a different thread\n"
+    )
+    messagebox.showinfo("Keynotes", keynotes)
+
+
+# Function to show help
+def show_help():
+    help_text = (
+        "Help:\n"
+        "This application allows you to copy files from one folder to another.\n"
+        "Steps to use the application:\n"
+        "1. Click 'Choose Original Folder' to select the folder with files.\n"
+        "2. Click 'Choose Destination Folder' to select where to copy files.\n"
+        "3. Click 'Copy Folder Manually' to start the copying process.\n"
+        "4. Monitor the progress using the progress bar.\n"
+        "If you encounter any issues, please check folder permissions."
+    )
+    messagebox.showinfo("Help", help_text)
+
+
 # Create the main window
 root = Tk()
 root.title('Folder Copier')
@@ -239,7 +255,7 @@ y_position = (screen_height // 2) - (window_height // 2)
 root.geometry(f'{window_width}x{window_height}+{x_position}+{y_position}')
 
 # Set the window icon
-root.iconbitmap('assets/software_icon.ico')  # Replace 'your_icon.ico' with your icon file name
+root.iconbitmap('assets/images/software_icon.ico')  # Replace 'your_icon.ico' with your icon file name
 
 # Configure grid
 # Dont mess with this, not worth it
