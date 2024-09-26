@@ -56,6 +56,12 @@ def choose_original_folder():
 
     # If a folder is selected, show its contents
     if folder_original_path:
+        if folder_original_path == selected_destination_folder:
+            messagebox.showerror('Error', 'Original and destination folders cannot be the same.')
+            return
+
+    # If a folder is selected, show its contents
+    if folder_original_path:
         print(f"\033[34m - User {user} choose the original file as: {folder_original_path}\033[0m")
         log_action("Original Folder selected:", folder_original_path)  # Log the copy action
         display_logs()
@@ -69,6 +75,12 @@ def choose_original_folder():
 def choose_destination_folder():
     # Open a folder selection dialog
     folder_destination_path = filedialog.askdirectory()
+
+    # If a folder is selected, show its contents
+    if folder_destination_path:
+        if folder_destination_path == selected_original_folder:
+            messagebox.showerror('Error', 'Original and destination folders cannot be the same.')
+            return
 
     # If a folder is selected, show its contents
     if folder_destination_path:
@@ -238,9 +250,8 @@ def toggle_timer():
 def show_keynotes():
     keynotes = (
         "Keynotes:\n"
-        "- Removed the progress bar as it is a bit irrelevant, "
-        "it represents the copy process and not the end of the copy, "
-        "for this we can change the copy to a different thread\n"
+        "1 - Removed the progress bar as it is irrelevant without a thread process"
+        "2 - Well, please use small directories to test, as implementing thread or batch process will complicate the project and async will restructure the project, it works, but is very slow\n"
     )
     messagebox.showinfo("Keynotes", keynotes)
 
