@@ -1,8 +1,10 @@
 import os
 import shutil
-
+# This is a safety code, in case the software goes in a loop and creates a
+# million of subfolders that crash any system, not that happened to me.
+# I am not telling you ideas to crash your friends computer, change to .bat
 # Define the path to the problematic directory
-root_directory = r"C:\Users\marqu\Desktop\CopiedFolder"  # Replace with the path to your directory
+root_directory = r"Hard drive path here"  # Replace with the path to your directory
 
 
 def delete_nested_folders(directory):
@@ -16,6 +18,7 @@ def delete_nested_folders(directory):
             print(f"The directory {directory} does not exist.")
     except Exception as e:
         print(f"Error deleting {directory}: {e}")
+
 
 # Call the function to delete the deeply nested folders
 delete_nested_folders(root_directory)
